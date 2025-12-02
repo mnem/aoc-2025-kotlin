@@ -1,6 +1,8 @@
-import kotlin.math.absoluteValue
-
 fun main() {
+    fun toMovements(input: List<String>): List<Movement> {
+        return input.map { Movement.fromString(it) }
+    }
+
     fun toShifts(input: List<String>): List<Int> {
         return input.map {
             when (val movement = Movement.fromString(it)) {
@@ -24,11 +26,19 @@ fun main() {
 
     fun part2(input: List<String>): Int {
         var dial = 50
-        var zeroes = 1
-        for (shift in toShifts(input)) {
-            dial = (dial + shift).mod(100)
-            val zeroPasses = (dial + shift.absoluteValue).floorDiv(100)
-            zeroes += zeroPasses
+        var zeroes = 0
+        for (movement in toMovements(input)) {
+            val (direction, distance) = when (movement) {
+                is Movement.Left -> Pair(-1, movement.distance)
+                is Movement.Right -> Pair(1, movement.distance)
+            }
+            repeat(distance) {
+                dial %= 100
+                if (dial == 0) {
+                    zeroes += 1
+                }
+                dial += direction
+            }
         }
         return zeroes
     }
